@@ -13,7 +13,7 @@ data class Apontamento(
     val startTime: LocalTime? = null,
     val endDate: LocalDate? = null,
     val endTime: LocalTime? = null,
-    val duration: LocalTime? = null,
+    val duration: String? = null,
 )
 
 @OptIn(ExperimentalTime::class)
@@ -48,9 +48,7 @@ fun parseToApontamentoGroupedByPerson(groupedData: Map<String, Map<String, List<
                 val endTimeLocal = if (endTime != null && endTime.isNotEmpty()) LocalTime.parse(endTime, formatterTime) else null
 
 
-                val durationTime = if(duration != null && duration.isNotEmpty()) LocalTime.parse(duration, LocalTime.Format {
-                    hour();char(':');minute();char(':');second()
-                }) else null
+                val durationTime = duration
 
                 Apontamento(
                     name,

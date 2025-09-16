@@ -15,6 +15,7 @@ junit = "4.13.2"
 kotlin = "2.2.10"
 kotlinx-coroutines = "1.10.2"
 csv = "1.1"
+icons = "1.7.3"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -29,6 +30,7 @@ androidx-lifecycle-viewmodelCompose = { module = "org.jetbrains.androidx.lifecyc
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 csv = { module = "de.halfbit:csv", version.ref = "csv" }
+jetbrains-icons = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "icons" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

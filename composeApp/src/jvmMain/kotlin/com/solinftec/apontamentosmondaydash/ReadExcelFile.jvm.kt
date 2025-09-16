@@ -30,7 +30,6 @@ actual fun readExcelFile(byteArray: ByteArray): Pair<List<Apontamento>, String> 
                     continue
                 }
 
-                // Adiciona a linha ao mapa, criando as estruturas aninhadas se necessário
                 groupedData
                     .getOrPut(name) { mutableMapOf() }
                     .getOrPut(date) { mutableListOf() }
