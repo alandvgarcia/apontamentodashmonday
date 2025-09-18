@@ -3,6 +3,7 @@ package com.solinftec.apontamentosmondaydash
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.ByteArrayInputStream
+import kotlin.time.Duration
 
 actual fun readExcelFile(byteArray: ByteArray): Pair<List<Apontamento>, String> {
 
@@ -11,35 +12,44 @@ actual fun readExcelFile(byteArray: ByteArray): Pair<List<Apontamento>, String> 
     val data = XSSFWorkbook(inputStream).let { workbook ->
 
         val firstSheet = workbook.getSheetAt(0)
-        val groupedData = mutableMapOf<String, MutableMap<String, MutableList<List<String>>>>()
+        val groupedData = mutableMapOf<Pair<String, String>, MutableMap<String, MutableList<List<String>>>>()
+        var taskName = ""
 
-        for (i in 0..firstSheet.lastRowNum) {
+        for (i in 2..firstSheet.lastRowNum) {
             val currentRow = firstSheet.getRow(i) ?: continue
 
             val nameCell = currentRow.getCell(0)
             val dateCell = currentRow.getCell(2)
 
-            if (nameCell != null && dateCell != null &&
-                nameCell.cellType == CellType.STRING &&
-                dateCell.cellType == CellType.STRING) {
+            if (nameCell != null && nameCell.cellType == CellType.STRING) {
 
                 val name = nameCell.stringCellValue
-                val date = dateCell.stringCellValue
+
+                if (name == "Started By") {
+                    taskName = firstSheet.getRow(i - 1).getCell(0).stringCellValue
+                } else if (name == "Total") {
+                    taskName = ""
+                }
 
                 if (name == "Started By" || name == "Total" || name.isEmpty()) {
                     continue
                 }
 
-                groupedData
-                    .getOrPut(name) { mutableMapOf() }
-                    .getOrPut(date) { mutableListOf() }
-                    .add(currentRow.map { it.stringCellValue })
+
+                if (dateCell != null &&
+                    dateCell.cellType == CellType.STRING
+                ) {
+                    val date = dateCell.stringCellValue
+                    groupedData
+                        .getOrPut(name to taskName) { mutableMapOf() }
+                        .getOrPut(date) { mutableListOf() }
+                        .add(currentRow.map { it.stringCellValue })
+                }
             }
         }
 
         groupedData
     }
-
 
 
     val listApontamento = parseToApontamentoGroupedByPerson(data)

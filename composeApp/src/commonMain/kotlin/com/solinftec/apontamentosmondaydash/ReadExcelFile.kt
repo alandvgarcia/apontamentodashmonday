@@ -3,25 +3,33 @@ package com.solinftec.apontamentosmondaydash
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.format.char
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
+import kotlin.time.toDuration
 
 expect fun readExcelFile(byteArray: ByteArray): Pair<List<Apontamento>, String>
 
 data class Apontamento(
     val name: String,
+    val nameTask: String,
     val startDate: LocalDate? = null,
     val startTime: LocalTime? = null,
     val endDate: LocalDate? = null,
     val endTime: LocalTime? = null,
-    val duration: String? = null,
+    val duration: Duration? = null,
 )
 
 @OptIn(ExperimentalTime::class)
-fun parseToApontamentoGroupedByPerson(groupedData: Map<String, Map<String, List<List<String>>>>): Pair<List<Apontamento>, String> {
+fun parseToApontamentoGroupedByPerson(groupedData: Map<Pair<String, String>, Map<String, List<List<String>>>>): Pair<List<Apontamento>, String> {
     var stringLog = ""
 
-    val listApontamento = groupedData.flatMap { (name, daysData) ->
+    val listApontamento = groupedData.flatMap { (nameAndTask, daysData) ->
 
+
+        val (name, taskName) = nameAndTask
 
         stringLog = stringLog.plus("----------------------------------------\n")
         stringLog = stringLog.plus("Nome: $name\n")
@@ -30,9 +38,8 @@ fun parseToApontamentoGroupedByPerson(groupedData: Map<String, Map<String, List<
 
         daysData.flatMap { (date, rows) ->
 
-            stringLog.plus("  Data: $date\n")
-
             rows.map { row ->
+
                 val startDate = row.getOrNull(2)
                 val startTime = row.getOrNull(4)
                 val endDate = row.getOrNull(3)
@@ -40,23 +47,31 @@ fun parseToApontamentoGroupedByPerson(groupedData: Map<String, Map<String, List<
                 val duration = row.getOrNull(6)
 
                 stringLog =
-                    stringLog.plus("    - Início: ${startDate ?: "N/A"} ${startTime ?: "N/A"}, Fim: ${endDate ?: "N/A"} ${endTime ?: "N/A"}, Duração: ${duration ?: "N/A"}\n")
+                    stringLog.plus("$taskName - Início: ${startDate ?: "N/A"} ${startTime ?: "N/A"}, Fim: ${endDate ?: "N/A"} ${endTime ?: "N/A"}, Duração: ${duration ?: "N/A"}\n")
 
                 val startDateLocal = if (startDate != null) LocalDate.parse(startDate, formatterDate) else null
                 val startTimeLocal = if (startTime != null) LocalTime.parse(startTime, formatterTime) else null
-                val endDateLocal = if (endDate != null && endDate.isNotEmpty()) LocalDate.parse(endDate, formatterDate) else null
-                val endTimeLocal = if (endTime != null && endTime.isNotEmpty()) LocalTime.parse(endTime, formatterTime) else null
+                val endDateLocal =
+                    if (endDate != null && endDate.isNotEmpty()) LocalDate.parse(endDate, formatterDate) else null
+                val endTimeLocal =
+                    if (endTime != null && endTime.isNotEmpty()) LocalTime.parse(endTime, formatterTime) else null
 
 
-                val durationTime = duration
 
                 Apontamento(
                     name,
+                    taskName,
                     startDateLocal,
                     startTimeLocal,
                     endDateLocal,
                     endTimeLocal,
-                    duration = durationTime
+                    duration = duration?.takeIf { it.isNotEmpty() }?.split(":")?.let {
+                        val hour = it.getOrNull(0)?.toInt()?.hours ?: 0.hours
+                        val minutes = it.getOrNull(1)?.toInt()?.minutes ?: 0.minutes
+                        val seconds = it.getOrNull(2)?.toInt()?.seconds ?: 0.seconds
+                        val total = (hour + minutes + seconds)
+                        total
+                    } ?: Duration.ZERO,
                 )
             }
         }
