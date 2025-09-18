@@ -25,6 +25,7 @@ import androidx.compose.ui.window.Popup
 import androidx.lifecycle.viewmodel.compose.viewModel
 import apontamentosmondaydash.composeapp.generated.resources.Res
 import apontamentosmondaydash.composeapp.generated.resources.logo_solinftec
+import com.solinftec.apontamentosmondaydash.theme.AppTheme
 import com.solinftec.apontamentosmondaydash.viewmodel.MainViewModel
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
@@ -65,7 +66,7 @@ fun App() {
     }
 
 
-    MaterialTheme {
+    AppTheme {
         Scaffold(
             topBar = {
                 TopAppBar({
@@ -173,7 +174,7 @@ fun ApontamentoScreen(apontamentos: List<Apontamento>) {
     val alertHours = remember(totalDurationDay) {
         derivedStateOf {
             ((totalDurationDay.value?.inWholeHours ?: 0) > 9.5 || (totalDurationDay.value?.inWholeHours
-                ?: 0) < 7) && (totalDurationDay.value?.inWholeHours ?: 0) > 0
+                ?: 0) < 7)
         }
     }
 
@@ -262,15 +263,16 @@ fun ApontamentoScreen(apontamentos: List<Apontamento>) {
 }
 
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun DaysWrongScreen(apontamentos: List<Apontamento>, selectedName: String, modifier: Modifier = Modifier) {
 
     val wrongNotes = remember(apontamentos, selectedName) {
         derivedStateOf {
-            apontamentos.filter { it.name == selectedName }.groupBy { it.startDate }.filter {
+            apontamentos.filter { it.name == selectedName }.groupBy { it.startDate?.atStartOfDayIn(TimeZone.currentSystemDefault()) }.filter {
                 var total = Duration.ZERO
                 it.value.mapNotNull { it.duration }.forEach { total += it }
-                (total.inWholeHours > 9.5 || total.inWholeHours < 7) && total.inWholeHours > 0
+                (total.inWholeHours > 9.5 || total.inWholeHours < 7)
             }.map {
                 var total = Duration.ZERO
                 it.value.mapNotNull { it.duration }.forEach { total += it }
@@ -292,7 +294,8 @@ fun DaysWrongScreen(apontamentos: List<Apontamento>, selectedName: String, modif
                     }
                 }, headlineContent = {
                     Text("$totalDuration")
-                })
+                },
+                    colors = ListItemDefaults.colors().copy(leadingIconColor = Color.White))
             }
         }
     }
@@ -348,7 +351,6 @@ fun DatePickerDocked(initialDate: Long, modifier: Modifier = Modifier, onSelect:
                         .fillMaxWidth()
                         .offset(y = 64.dp)
                         .shadow(elevation = 4.dp)
-                        .background(MaterialTheme.colorScheme.surface)
                         .padding(16.dp)
                 ) {
                     DatePicker(
@@ -377,7 +379,7 @@ fun LongBasicDropdownMenu(
             .padding(16.dp)
     ) {
         Row {
-            TextButton(onClick = { expanded = !expanded }) {
+            Button(onClick = { expanded = !expanded }) {
                 Icon(Icons.Default.Person, contentDescription = "More options")
                 Text(itemSelected)
             }
