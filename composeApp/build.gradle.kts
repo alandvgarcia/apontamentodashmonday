@@ -9,10 +9,29 @@ plugins {
     alias(libs.plugins.composeHotReload)
 }
 
+val osName = System.getProperty("os.name")
+val targetOs = when {
+    osName == "Mac OS X" -> "macos"
+    osName.startsWith("Win") -> "windows"
+    osName.startsWith("Linux") -> "linux"
+    else -> error("Unsupported OS: $osName")
+}
+
+val osArch = System.getProperty("os.arch")
+val targetArch = when (osArch) {
+    "x86_64", "amd64" -> "x64"
+    "aarch64" -> "arm64"
+    else -> error("Unsupported arch: $osArch")
+}
+
+val version = "0.9.24" // or any more recent version
+val target = "${targetOs}-${targetArch}"
+
+
 kotlin {
     androidTarget {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 
@@ -67,6 +86,11 @@ kotlin {
             implementation("org.apache.poi:poi-ooxml:5.4.1")
             implementation("org.apache.logging.log4j:log4j-api:2.24.3")
             implementation("org.apache.logging.log4j:log4j-core:2.24.3")
+
+
+
+
+            implementation("org.jetbrains.skiko:skiko-awt-runtime-$target:$version")
         }
 
 
@@ -95,8 +119,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 }
 
@@ -105,13 +129,25 @@ dependencies {
 }
 
 compose.desktop {
+
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
+    }
+
     application {
         mainClass = "com.solinftec.apontamentosmondaydash.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "com.solinftec.apontamentosmondaydash"
             packageVersion = "1.0.0"
         }
     }
+}
+
+tasks.withType<JavaExec> {
+    jvmArgs("--enable-native-access=ALL-UNNAMED")
 }
