@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.solinftec.apontamentosmondaydash.extensions.epochToLocalDate
+import kotlinx.datetime.number
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
@@ -43,7 +44,7 @@ fun DatePickerDocked(initialDate: Long, modifier: Modifier = Modifier, onSelect:
     val selectedDate = initialDate.let {
         val date = it.epochToLocalDate(true)
         onSelect(it)
-        "${date.day}/${date.month}/${date.year}"
+        "${date.day}/${date.month.number}/${date.year}"
     }
 
     Box(
