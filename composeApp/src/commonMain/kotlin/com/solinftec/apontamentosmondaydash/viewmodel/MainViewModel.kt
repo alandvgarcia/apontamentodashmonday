@@ -2,7 +2,7 @@ package com.solinftec.apontamentosmondaydash.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.solinftec.apontamentosmondaydash.Apontamento
+import com.solinftec.apontamentosmondaydash.model.Apontamento
 import com.solinftec.apontamentosmondaydash.readExcelFile
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.readBytes
@@ -26,8 +26,5 @@ class MainViewModel() : ViewModel() {
         _fileResult.value = listStringContent
         _logString.value = logString
     }
-
-
-
 
 }

@@ -1,4 +1,4 @@
-package com.solinftec.apontamentosmondaydash.theme
+package com.solinftec.apontamentosmondaydash.ui.theme
 
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme

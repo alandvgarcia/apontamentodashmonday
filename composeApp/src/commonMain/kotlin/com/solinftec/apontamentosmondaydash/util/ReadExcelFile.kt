@@ -1,5 +1,6 @@
-package com.solinftec.apontamentosmondaydash
+package com.solinftec.apontamentosmondaydash.util
 
+import com.solinftec.apontamentosmondaydash.model.Apontamento
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.format.char
@@ -8,26 +9,12 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
-import kotlin.time.toDuration
-
-expect fun readExcelFile(byteArray: ByteArray): Pair<List<Apontamento>, String>
-
-data class Apontamento(
-    val name: String,
-    val nameTask: String,
-    val startDate: LocalDate? = null,
-    val startTime: LocalTime? = null,
-    val endDate: LocalDate? = null,
-    val endTime: LocalTime? = null,
-    val duration: Duration? = null,
-)
 
 @OptIn(ExperimentalTime::class)
 fun parseToApontamentoGroupedByPerson(groupedData: Map<Pair<String, String>, Map<String, List<List<String>>>>): Pair<List<Apontamento>, String> {
     var stringLog = ""
 
     val listApontamento = groupedData.flatMap { (nameAndTask, daysData) ->
-
 
         val (name, taskName) = nameAndTask
 
