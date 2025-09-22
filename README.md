@@ -48,3 +48,9 @@ in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and r
 ---
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+
+
+
+
+|| Executaveis
+https://drive.google.com/file/d/1Dv47pwECUWR11QA1VeuxPj38yGXyE9iZ/view?usp=drive_link | DMG MacOS
