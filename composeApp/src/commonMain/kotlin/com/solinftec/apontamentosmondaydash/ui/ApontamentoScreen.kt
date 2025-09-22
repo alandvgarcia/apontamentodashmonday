@@ -138,10 +138,6 @@ fun ApontamentoScreen(apontamentos: List<Apontamento>) {
                 DaysWrongList(apontamentos, selected)
             }
 
-            ElevatedCard(modifier = Modifier.weight(1f).fillMaxSize()) {
-                DaysWrongList(apontamentos, selected)
-            }
-
 
         }
     }
