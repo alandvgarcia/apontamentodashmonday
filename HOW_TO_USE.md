@@ -8,6 +8,12 @@
 
 3 - Na opção inferior direita seleciona a opção "Carregar arquivo apontamento"
 
-<img width="2552" height="1438" alt="image" src="https://github.com/user-attachments/assets/5506b73f-4cee-433b-a971-b9af39deeddc" />
+<img width="1644" height="918" alt="image" src="https://github.com/user-attachments/assets/132ff7dd-29a0-4580-86a6-63060615ea23" />
+
+4 - No canto superior você pode selecionar a pessoa, caso tenha mais que um no arquivo exportado, no meio o total de horar apontadas no dia selecionado no seletor de data na direita. O quadro da esquerda vai mostrar os apontamentos do dia selecionado, o quadro da direita irá mostras os dias com o total de horas que não estão corretos.
+
+<img width="2543" height="1216" alt="image" src="https://github.com/user-attachments/assets/609d50fc-a888-47bf-868f-1ef7f029894d" />
+
+
 
 
