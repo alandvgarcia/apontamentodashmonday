@@ -60,11 +60,17 @@ jobs:
 
       - name: Create Release and Upload Assets
         run: |
+          # Enable globstar for recursive matching (**) and nullglob to avoid errors if no files match a pattern
+          shopt -s globstar nullglob
+          
+          # Find all installers and put them in an array
+          FILES=(artifacts/**/*.msi artifacts/**/*.dmg artifacts/**/*.deb)
+          
+          echo "Found files to upload: ${FILES[@]}"
+          
           gh release create ${{ github.ref_name }} \
             --title "Release ${{ github.ref_name }}" \
             --generate-notes \
-            artifacts/**/*.msi \
-            artifacts/**/*.dmg \
-            artifacts/**/*.deb
+            "${FILES[@]}"
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
