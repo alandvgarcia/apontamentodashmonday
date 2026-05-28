@@ -1,5 +1,19 @@
 This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM).
 
+## Requisitos do Sistema
+
+### Para Desenvolvimento (Compilar e Rodar via código)
+*   **JDK 21**: O projeto utiliza recursos do Java 21. Recomendamos o uso do [Azul Zulu](https://www.azul.com/downloads/?package=jdk) ou [Temurin](https://adoptium.net/temurin/releases/?version=21).
+*   **Android Studio**: Versão Ladybug ou superior para melhor suporte ao Compose Multiplatform.
+*   **Xcode** (Apenas para iOS): Necessário caso deseje compilar a versão para iOS (requer macOS).
+
+### Para Usuário Final (Executar o Aplicativo Instalado)
+*   **Windows**: Não requer Java instalado (o instalador `.msi` já inclui o runtime necessário).
+*   **macOS**: Não requer Java instalado (o arquivo `.dmg`/`.app` já inclui o runtime necessário).
+*   **Linux**: Dependendo da distribuição, pode ser necessário ter bibliotecas base do sistema atualizadas. O pacote `.deb` gerencia a maioria das dependências.
+
+## Estrutura do Projeto
+
 * [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
   It contains several subfolders:
     - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
