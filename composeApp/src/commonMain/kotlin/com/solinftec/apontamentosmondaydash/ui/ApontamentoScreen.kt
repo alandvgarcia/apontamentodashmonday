@@ -153,19 +153,26 @@ fun ApontamentoScreen(apontamentos: List<Apontamento>) {
                         Tab(
                             selected = selectedTab == 0,
                             onClick = { selectedTab = 0 },
-                            text = { Text("Resumo de Erros") }
+                            text = { Text("Timeline") }
                         )
                         Tab(
                             selected = selectedTab == 1,
                             onClick = { selectedTab = 1 },
-                            text = { Text("Timeline") }
+                            text = { Text("Resumo de Erros") }
                         )
                     }
                     Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                         if (selectedTab == 0) {
-                            DaysWrongList(apontamentos, selected)
-                        } else {
                             TimelineChart(filterApontamentos.value)
+                        } else {
+                            DaysWrongList(
+                                apontamentos = apontamentos,
+                                selectedName = selected,
+                                onDateSelected = { epoch ->
+                                    selectedDateEpoch = epoch
+                                    selectedTab = 0
+                                }
+                            )
                         }
                     }
                 }

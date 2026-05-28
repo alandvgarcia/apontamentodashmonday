@@ -10,7 +10,7 @@ actual fun readExcelFile(byteArray: ByteArray): Pair<List<Apontamento>, String> 
 
     val inputStream = ByteArrayInputStream(byteArray)
 
-    val data = XSSFWorkbook(inputStream).let { workbook ->
+    val data = XSSFWorkbook(inputStream).use { workbook ->
 
         val firstSheet = workbook.getSheetAt(0)
         val groupedData = mutableMapOf<Pair<String, String>, MutableMap<String, MutableList<List<String>>>>()
@@ -52,12 +52,10 @@ actual fun readExcelFile(byteArray: ByteArray): Pair<List<Apontamento>, String> 
         groupedData
     }
 
-
+    inputStream.close()
     val listApontamento = parseToApontamentoGroupedByPerson(data)
 
     return listApontamento
-
-
 }
 
 

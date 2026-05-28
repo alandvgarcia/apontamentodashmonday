@@ -21,6 +21,8 @@ class MainViewModel() : ViewModel() {
     val logString = _logString.asStateFlow()
 
     fun readFile(file: PlatformFile) = viewModelScope.launch {
+        _fileResult.value = emptyList()
+        _logString.value = ""
         val byteArray = file.readBytes()
         val (listStringContent, logString) = readExcelFile(byteArray)
         _fileResult.value = listStringContent

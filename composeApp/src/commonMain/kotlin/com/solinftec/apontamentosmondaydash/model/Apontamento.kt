@@ -61,17 +61,61 @@ fun List<Apontamento>.filterByDateSortByHour(selectedDateEpoch: Long, namePerson
 }
 
 
+enum class ErrorType {
+    OVERLAP, UNDER_HOURS, OVER_HOURS
+}
+
 @OptIn(ExperimentalTime::class)
-fun List<Apontamento>.filterWrongNoteDays(namePerson: String): List<Pair<Instant, Duration>> {
-    return filter { it.name == namePerson }.groupBy { it.startDate?.atStartOfDayIn(TimeZone.currentSystemDefault()) }
-        .filter {
-            var total = Duration.ZERO
-            it.value.mapNotNull { it.duration }.forEach { total += it }
-            (total.inWholeHours > 9.5 || total.inWholeHours < 7)
-        }.filter { it.key != null }.map {
-            var total = Duration.ZERO
-            it.value.mapNotNull { it.duration }.forEach { total += it }
-            it.key!! to total
+fun List<Apontamento>.detectErrors(): List<ErrorType> {
+    val errors = mutableListOf<ErrorType>()
+    val totalHours = getTotalHours().inWholeHours
+
+    if (totalHours < Apontamento.MIN_HOUR_ALERT_LIMIT) errors.add(ErrorType.UNDER_HOURS)
+    if (totalHours > Apontamento.MAX_HOUR_ALERT_LIMIT) errors.add(ErrorType.OVER_HOURS)
+
+    val hasOverlap = anyIndexed { index, current ->
+        val currentStart = current.startTime
+        val currentEnd = current.endTime
+        if (currentStart != null && currentEnd != null) {
+            val cs = currentStart.hour * 60 + currentStart.minute
+            val ce = if (currentEnd.hour == 0 && currentEnd.minute == 0) 24 * 60 else currentEnd.hour * 60 + currentEnd.minute
+
+            filterIndexed { i, _ -> i != index }.any { other ->
+                val otherStart = other.startTime
+                val otherEnd = other.endTime
+                if (otherStart != null && otherEnd != null) {
+                    val os = otherStart.hour * 60 + otherStart.minute
+                    val oe = if (otherEnd.hour == 0 && otherEnd.minute == 0) 24 * 60 else otherEnd.hour * 60 + otherEnd.minute
+                    os < ce && oe > cs
+                } else false
+            }
+        } else false
+    }
+
+    if (hasOverlap) errors.add(ErrorType.OVERLAP)
+
+    return errors
+}
+
+private inline fun <T> List<T>.anyIndexed(predicate: (Int, T) -> Boolean): Boolean {
+    forEachIndexed { index, t ->
+        if (predicate(index, t)) return true
+    }
+    return false
+}
+
+@OptIn(ExperimentalTime::class)
+fun List<Apontamento>.filterWrongNoteDays(namePerson: String): List<Triple<Instant, Duration, List<ErrorType>>> {
+    return filter { it.name == namePerson }
+        .groupBy { it.startDate?.atStartOfDayIn(TimeZone.currentSystemDefault()) }
+        .filter { it.key != null }
+        .map { (date, dailyApontamentos) ->
+            Triple(date!!, dailyApontamentos.getTotalHours(), dailyApontamentos.detectErrors())
+        }
+        .filter { (_, total, errors) ->
+            total.inWholeHours > Apontamento.MAX_HOUR_ALERT_LIMIT || 
+            total.inWholeHours < Apontamento.MIN_HOUR_ALERT_LIMIT || 
+            errors.contains(ErrorType.OVERLAP)
         }
 }
 
