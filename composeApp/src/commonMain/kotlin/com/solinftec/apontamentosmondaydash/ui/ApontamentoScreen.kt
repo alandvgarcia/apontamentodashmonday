@@ -22,6 +22,7 @@ import com.solinftec.apontamentosmondaydash.model.getTotalHours
 import com.solinftec.apontamentosmondaydash.ui.components.DatePickerDocked
 import com.solinftec.apontamentosmondaydash.ui.components.DaysWrongList
 import com.solinftec.apontamentosmondaydash.ui.components.MenuDropDownPerson
+import com.solinftec.apontamentosmondaydash.ui.components.TimelineChart
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
@@ -41,6 +42,7 @@ fun ApontamentoScreen(apontamentos: List<Apontamento>) {
     }
 
     var selected by rememberSaveable { mutableStateOf("") }
+    var selectedTab by rememberSaveable { mutableStateOf(0) }
     var selectedDateEpoch by rememberSaveable {
         mutableStateOf(
             Clock.System.now()
@@ -146,7 +148,27 @@ fun ApontamentoScreen(apontamentos: List<Apontamento>) {
             }
 
             ElevatedCard(modifier = Modifier.weight(1f).fillMaxSize()) {
-                DaysWrongList(apontamentos, selected)
+                Column {
+                    TabRow(selectedTabIndex = selectedTab) {
+                        Tab(
+                            selected = selectedTab == 0,
+                            onClick = { selectedTab = 0 },
+                            text = { Text("Resumo de Erros") }
+                        )
+                        Tab(
+                            selected = selectedTab == 1,
+                            onClick = { selectedTab = 1 },
+                            text = { Text("Timeline") }
+                        )
+                    }
+                    Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                        if (selectedTab == 0) {
+                            DaysWrongList(apontamentos, selected)
+                        } else {
+                            TimelineChart(filterApontamentos.value)
+                        }
+                    }
+                }
             }
 
 
