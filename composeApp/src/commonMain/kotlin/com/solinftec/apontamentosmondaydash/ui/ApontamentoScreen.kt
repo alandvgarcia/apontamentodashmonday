@@ -22,6 +22,9 @@ import com.solinftec.apontamentosmondaydash.model.getTotalHours
 import com.solinftec.apontamentosmondaydash.ui.components.DatePickerDocked
 import com.solinftec.apontamentosmondaydash.ui.components.DaysWrongList
 import com.solinftec.apontamentosmondaydash.ui.components.MenuDropDownPerson
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
@@ -38,7 +41,15 @@ fun ApontamentoScreen(apontamentos: List<Apontamento>) {
     }
 
     var selected by rememberSaveable { mutableStateOf("") }
-    var selectedDateEpoch by rememberSaveable { mutableStateOf(Clock.System.now().toEpochMilliseconds()) }
+    var selectedDateEpoch by rememberSaveable {
+        mutableStateOf(
+            Clock.System.now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
+                .atStartOfDayIn(TimeZone.UTC)
+                .toEpochMilliseconds()
+        )
+    }
 
 
     val filterApontamentos = rememberSaveable(selectedDateEpoch, apontamentos, selected) {
@@ -97,7 +108,7 @@ fun ApontamentoScreen(apontamentos: List<Apontamento>) {
                         Text(
                             "Apontamentos do dia ${
                                 Instant.fromEpochMilliseconds(selectedDateEpoch)
-                                    .formatterLocalized()
+                                    .formatterLocalized(TimeZone.UTC)
                             }", style = MaterialTheme.typography.titleLarge
                         )
                     }

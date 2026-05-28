@@ -1,18 +1,13 @@
 package com.solinftec.apontamentosmondaydash.ui.components
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,6 +15,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,21 +32,27 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun DatePickerDocked(initialDate: Long, modifier: Modifier = Modifier, onSelect: (Long) -> Unit) {
     var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialDate)
 
-    val initialDate = datePickerState.selectedDateMillis ?: initialDate
+    val selectedDateText = remember(datePickerState.selectedDateMillis, initialDate) {
+        val millis = datePickerState.selectedDateMillis ?: initialDate
+        val date = millis.epochToLocalDate(true)
+        "${date.day}/${date.monthNumber}/${date.year}"
+    }
 
-    val selectedDate = initialDate.let {
-        val date = it.epochToLocalDate(true)
-        onSelect(it)
-        "${date.day}/${date.month}/${date.year}"
+    LaunchedEffect(datePickerState.selectedDateMillis, onSelect) {
+        datePickerState.selectedDateMillis?.let {
+            if (it != initialDate) {
+                onSelect(it)
+            }
+        }
     }
 
     Box(
         modifier = modifier.fillMaxWidth()
     ) {
         OutlinedTextField(
-            value = selectedDate,
+            value = selectedDateText,
             onValueChange = { },
             label = { Text("Selecione a data") },
             readOnly = true,
@@ -88,5 +90,3 @@ fun DatePickerDocked(initialDate: Long, modifier: Modifier = Modifier, onSelect:
         }
     }
 }
-
-

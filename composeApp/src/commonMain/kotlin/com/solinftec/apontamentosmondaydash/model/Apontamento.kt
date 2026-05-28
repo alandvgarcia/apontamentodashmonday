@@ -6,7 +6,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -51,16 +50,10 @@ fun Duration.alertTotalHours() =
 fun List<Apontamento>.filterByDateSortByHour(selectedDateEpoch: Long, namePerson: String): List<Apontamento> {
     return filter {
 
-        val selectedDate = selectedDateEpoch.epochToLocalDate()
+        val selectedDate = selectedDateEpoch.epochToLocalDate(true)
 
-        val startDate = if (it.startDate != null) Instant.fromEpochMilliseconds(
-            it.startDate.atStartOfDayIn(TimeZone.currentSystemDefault())
-                .toEpochMilliseconds()
-        ).toLocalDateTime(TimeZone.currentSystemDefault()).date else 0L
-        val endDate = if (it.endDate != null) Instant.fromEpochMilliseconds(
-            it.endDate.atStartOfDayIn(TimeZone.currentSystemDefault())
-                .toEpochMilliseconds()
-        ).toLocalDateTime(TimeZone.currentSystemDefault()).date else 0L
+        val startDate = it.startDate
+        val endDate = it.endDate
 
         namePerson == it.name && (selectedDate == endDate || selectedDate == startDate)
 

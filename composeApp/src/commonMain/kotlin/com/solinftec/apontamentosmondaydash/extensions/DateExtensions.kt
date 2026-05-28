@@ -11,8 +11,8 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 @OptIn(ExperimentalTime::class)
-fun Instant.formatterLocalized(): String {
-    return toLocalDateTime(TimeZone.currentSystemDefault()).format(
+fun Instant.formatterLocalized(timeZone: TimeZone = TimeZone.currentSystemDefault()): String {
+    return toLocalDateTime(timeZone).format(
         LocalDateTime.Format {
             day();char('/');monthNumber();char('/');year()
         }
@@ -27,7 +27,8 @@ fun LocalDate.formatterLocalized(): String {
 
 
 @OptIn(ExperimentalTime::class)
-fun Long.epochToLocalDate(utcDate: Boolean = false): LocalDateTime {
-    return Instant.fromEpochMilliseconds(this).toLocalDateTime(if(utcDate) TimeZone.UTC else TimeZone.currentSystemDefault()).date.atStartOfDayIn(
-        TimeZone.currentSystemDefault()).toLocalDateTime(if(utcDate) TimeZone.UTC else TimeZone.currentSystemDefault())
+fun Long.epochToLocalDate(isUtc: Boolean = false): LocalDate {
+    return Instant.fromEpochMilliseconds(this)
+        .toLocalDateTime(if (isUtc) TimeZone.UTC else TimeZone.currentSystemDefault())
+        .date
 }
