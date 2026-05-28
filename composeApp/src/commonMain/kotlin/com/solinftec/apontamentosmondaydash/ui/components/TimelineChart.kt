@@ -20,8 +20,8 @@ fun TimelineChart(
     apontamentos: List<Apontamento>,
     modifier: Modifier = Modifier
 ) {
-    val startHour = 0
-    val endHour = 24
+    val startHour = 5
+    val endHour = 24 // Representing 00:00 as the end of the day
     val hourWidth = 60.dp
     val rowHeight = 40.dp
     val labelWidth = 150.dp
@@ -32,7 +32,7 @@ fun TimelineChart(
             .verticalScroll(rememberScrollState())
             .horizontalScroll(rememberScrollState())
         ) {
-            val totalWidth = labelWidth + (hourWidth * (endHour - startHour + 1))
+            val totalWidth = labelWidth + (hourWidth * (endHour - startHour))
             val totalHeight = (rowHeight * (apontamentos.size + 1))
 
             Box(modifier = Modifier.size(width = totalWidth, height = totalHeight)) {
@@ -84,11 +84,19 @@ fun TimelineChart(
                             
                             if (start != null && end != null) {
                                 val startInMinutes = start.hour * 60 + start.minute
-                                val endInMinutes = end.hour * 60 + end.minute
+                                // If endTime is 00:00, treat it as 24:00 for the purpose of the chart
+                                val endInMinutes = if (end.hour == 0 && end.minute == 0) {
+                                    24 * 60
+                                } else {
+                                    end.hour * 60 + end.minute
+                                }
+                                
                                 val durationInMinutes = endInMinutes - startInMinutes
                                 
                                 if (durationInMinutes > 0) {
-                                    val startX = hourWidth * (startInMinutes / 60f)
+                                    // Calculate offset relative to startHour (05:00)
+                                    val startOffsetMinutes = startInMinutes - (startHour * 60)
+                                    val startX = hourWidth * (startOffsetMinutes / 60f)
                                     val width = hourWidth * (durationInMinutes / 60f)
                                     
                                     val hasOverlap = apontamentos.filterIndexed { i, _ -> i != index }.any { other ->
@@ -96,19 +104,26 @@ fun TimelineChart(
                                         val otherEnd = other.endTime
                                         if (otherStart != null && otherEnd != null) {
                                             val os = otherStart.hour * 60 + otherStart.minute
-                                            val oe = otherEnd.hour * 60 + otherEnd.minute
+                                            val oe = if (otherEnd.hour == 0 && otherEnd.minute == 0) {
+                                                24 * 60
+                                            } else {
+                                                otherEnd.hour * 60 + otherEnd.minute
+                                            }
                                             // Overlap check
                                             os < endInMinutes && oe > startInMinutes
                                         } else false
                                     }
 
-                                    Box(
-                                        modifier = Modifier
-                                            .padding(start = startX)
-                                            .width(width)
-                                            .height(rowHeight * 0.7f)
-                                            .background(if (hasOverlap) Color.Red else Color(0xFF4A90E2))
-                                    )
+                                    // Only draw if it starts or ends within the visible range (approx)
+                                    if (startX + width > 0.dp) {
+                                        Box(
+                                            modifier = Modifier
+                                                .padding(start = startX)
+                                                .width(width)
+                                                .height(rowHeight * 0.7f)
+                                                .background(if (hasOverlap) Color.Red else Color(0xFF4A90E2))
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -119,8 +134,9 @@ fun TimelineChart(
                 Row(modifier = Modifier.padding(top = (rowHeight * apontamentos.size)).height(rowHeight)) {
                     Spacer(modifier = Modifier.width(labelWidth))
                     for (i in startHour..endHour) {
+                        val displayHour = if (i == 24) 0 else i
                         Text(
-                            text = "${i}h",
+                            text = "${displayHour}h",
                             modifier = Modifier.width(hourWidth),
                             fontSize = 10.sp,
                             color = Color.Gray
